@@ -1,0 +1,21 @@
+- op: "add"
+  path: /spec/policy
+  value: |-
+    {
+    "Version": "2008-10-17",
+    "Id": "__default_policy_ID",
+    "Statement": [
+      {
+        "Sid": "__owner_statement",
+        "Effect": "Allow",
+        "Principal": {
+          "AWS": "196164500990"
+        },
+        "Action": [
+          "SQS:*"
+        ],
+        "Resource": "arn:aws:sqs:us-west-2:196164500990:"
+      }
+    ]
+    }
+

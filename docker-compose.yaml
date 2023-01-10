@@ -1,0 +1,121 @@
+version: '3'
+name: "demo-soa"
+services:
+  frontend:
+    build:
+      context: frontend/eshop
+      dockerfile: Dockerfile
+    image: redhat.io/appsvc/demo-soa/frontend:latest
+  catalog:
+    build:
+      context: 'services/catalog'
+      dockerfile: deploy/catalog/Dockerfile
+    image: redhat.io/appsvc/demo-soa/catalog:latest
+    environment:
+      SERVICE_BINDING_ROOT: /bindings
+    volumes:
+      - ./deploy/compose/sbroot/aws:/bindings/aws:ro
+      - ./deploy/compose/sbroot/sqs:/bindings/sqs:ro
+      - ./deploy/compose/sbroot/postgres:/bindings/postgres:ro
+    depends_on:
+      catalog-init:
+        condition: service_completed_successfully
+  catalog-init:
+    build:
+      context: 'services/catalog'
+      dockerfile: deploy/init/Dockerfile
+    image: redhat.io/appsvc/demo-soa/catalog-init:latest
+    restart: on-failure
+    environment:
+      SERVICE_BINDING_ROOT: /bindings
+    volumes:
+      - ./deploy/compose/sbroot/aws:/bindings/aws:ro
+      - ./deploy/compose/sbroot/sqs:/bindings/sqs:ro
+      - ./deploy/compose/sbroot/postgres:/bindings/postgres:ro
+    depends_on:
+      catalog-db:
+        condition: service_started
+  catalog-db:
+    image: postgres:15.1
+    environment:
+      POSTGRES_PASSWORD_FILE: /bindings/postgres/password
+      POSTGRES_USER_FILE: /bindings/postgres/username
+      POSTGRES_DB_FILE: /bindings/postgres/database
+      PGDATA: /tmp/data
+    volumes:
+      - ./deploy/compose/sbroot/postgres:/bindings/postgres:ro
+  orders:
+    build:
+      context: 'services/orders'
+      dockerfile: deploy/orders/Dockerfile
+    image: redhat.io/appsvc/demo-soa/orders:latest
+    environment:
+      SERVICE_BINDING_ROOT: /bindings
+    volumes:
+      - ./deploy/compose/sbroot/aws:/bindings/aws:ro
+      - ./deploy/compose/sbroot/dynamodb:/bindings/dynamodb:ro
+    depends_on:
+      orders-init:
+        condition: service_completed_successfully
+  orders-init:
+    build:
+      context: 'services/orders'
+      dockerfile: deploy/init/Dockerfile
+    image: redhat.io/appsvc/demo-soa/orders-init:latest
+    environment:
+      SERVICE_BINDING_ROOT: /bindings
+    volumes:
+      - ./deploy/compose/sbroot/aws:/bindings/aws:ro
+      - ./deploy/compose/sbroot/dynamodb:/bindings/dynamodb:ro
+    depends_on:
+      orders-db:
+        condition: service_started
+  orders-db:
+    command: "-jar DynamoDBLocal.jar -sharedDb"
+    image: "amazon/dynamodb-local:latest"
+    ports:
+      - 8000:8000
+  orders-events-consumer:
+    build:
+      context: 'services/orders-events-consumer'
+      dockerfile: Dockerfile
+    image: redhat.io/appsvc/demo-soa/orders-events-consumer:latest
+    restart: on-failure
+    environment:
+      SERVICE_BINDING_ROOT: /bindings
+    volumes:
+      - ./deploy/compose/sbroot/aws:/bindings/aws:ro
+      - ./deploy/compose/sbroot/sqs:/bindings/sqs:ro
+      - ./deploy/compose/sbroot/dynamodb:/bindings/dynamodb:ro
+    depends_on:
+      orders-db:
+        condition: service_started
+      catalog-init:
+        condition: service_completed_successfully
+      orders-init:
+        condition: service_completed_successfully
+      sqs:
+        condition: service_started
+  sqs:
+    image: softwaremill/elasticmq-native
+  ingress:
+    image: nginx:latest
+    ports:
+      - 8090:80
+    environment:
+      NGINX_PORT: 80
+    configs:
+      - target: /etc/nginx/conf.d/default.conf
+        mode: 0440
+        source: nginx-cfg
+    depends_on:
+      orders:
+        condition: service_started
+      catalog:
+        condition: service_started
+      frontend:
+        condition: service_started
+
+configs:
+  nginx-cfg:
+    file: deploy/compose/nginx.conf

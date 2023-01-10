@@ -1,0 +1,69 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: demo-soa-catalog-db
+  namespace: demo-soa
+stringData:
+  type: postgres
+  provider: postgres
+  host: demo-soa-catalog-db
+  database: postgres
+  username: postgres
+  password: Sup3rsecret@
+  database_url: "postgres://postgres:Sup3rsecret@@demo-soa-catalog-db:5432/postgres"
+  port: "5432"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: demo-soa-catalog-db
+  labels:
+    app: demo-soa-catalog-db
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: demo-soa-catalog-db
+  template:
+    metadata:
+      labels:
+        app: demo-soa-catalog-db
+    spec:
+      containers:
+        - name: postgresql
+          image: postgres:15.1
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: POSTGRES_DB_FILE
+              value: /secrets/database
+            - name: POSTGRES_PASSWORD_FILE
+              value: /secrets/password
+            - name: POSTGRES_USER_FILE
+              value: /secrets/username
+            - name: PGDATA
+              value: /tmp/data
+          volumeMounts:
+            - name: demo-soa-catalog-db
+              mountPath: "/secrets"
+              readOnly: true
+          ports:
+            - name: postgresql
+              containerPort: 5432
+      volumes:
+        - name: demo-soa-catalog-db
+          secret:
+            secretName: demo-soa-catalog-db
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: demo-soa-catalog-db
+  name: demo-soa-catalog-db
+spec:
+  ports:
+    - port: 5432
+      protocol: TCP
+      targetPort: 5432
+  selector:
+    app: demo-soa-catalog-db

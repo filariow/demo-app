@@ -1,0 +1,16 @@
+apiVersion: binding.operators.coreos.com/v1alpha1
+kind: ServiceResourceMap
+metadata:
+  name: demo-soa-catalog-rds-psql
+  namespace: demo-soa
+spec:
+  service_kind_reference:
+    api_group: rds.services.k8s.aws/v1alpha1
+    kind: dbinstances
+  service_map:
+    type: "postgresql"
+    host: "path={.status.endpoint.address}"
+    port: "path={.status.endpoint.port}"
+    password: "path={.spec.masterUserPassword.name},objectType=Secret,sourceKey=password"
+    username: "path={.spec.masterUsername}"
+    database: "postgres"

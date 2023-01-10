@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: demo-soa-orders-events-consumer
+  namespace: demo-soa
+  labels:
+    app: demo-soa-orders-events-consumer
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: demo-soa-orders-events-consumer
+  template:
+    metadata:
+      labels:
+        app: demo-soa-orders-events-consumer
+    spec:
+      containers:
+      - name: demo-soa-ordersevents-consumer
+        image: redhat.io/demo-soa/orders-events-consumer:latest
+        imagePullPolicy: IfNotPresent
+        resources:
+          limits:
+            cpu: 100m
+            memory: 200Mi
+          requests:
+            cpu: 100m
+            memory: 200Mi

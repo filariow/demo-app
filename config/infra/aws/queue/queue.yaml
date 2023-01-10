@@ -1,0 +1,10 @@
+apiVersion: sqs.services.k8s.aws/v1alpha1
+kind: Queue
+metadata:
+  namespace: demo-soa
+  name: demo-soa-sqs
+spec:
+  queueName: orders
+  tags:
+    env: dev
+    project: demo-soa

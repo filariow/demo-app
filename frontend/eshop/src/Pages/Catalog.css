@@ -1,0 +1,29 @@
+.Catalog {
+  background-color: #282c34;
+  min-height: calc(100vh - 209px);
+  text-align: center;
+}
+
+.Catalog-title {
+  padding-top: 20px;
+  padding-bottom: 20px;
+  color: white;
+  font-size: 5rem;
+  font-weight: 700;
+}
+
+.Catalog-title-background {
+  background-color: #1a1a20
+}
+
+.card {
+  background-color: #212529;
+  border-color: #373b3e;
+  color: white;
+  cursor: pointer;
+}
+
+.card-body {
+  color: white;
+  cursor: pointer;
+}

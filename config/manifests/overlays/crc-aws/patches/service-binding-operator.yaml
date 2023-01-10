@@ -1,0 +1,13 @@
+- op: replace
+  path: /metadata/namespace
+  value: openshift-operators
+- op: replace
+  path: /spec/sourceNamespace
+  value: openshift-marketplace
+- op: replace
+  path: /spec/source
+  value: redhat-operators
+- op: replace
+  path: /spec/name
+  value: rh-service-binding-operator
+

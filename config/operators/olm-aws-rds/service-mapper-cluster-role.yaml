@@ -1,0 +1,27 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  creationTimestamp: null
+  name: demo-soa-srm-rds
+rules:
+- apiGroups:
+  - "rds.services.k8s.aws"
+  resources:
+  - "dbinstances"
+  verbs:
+  - get
+  - list
+  - watch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: demo-soa-srm-rds-rolebinding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: demo-soa-srm-rds
+subjects:
+- kind: ServiceAccount
+  name: service-mapper-controller-manager
+  namespace: service-mapper-system

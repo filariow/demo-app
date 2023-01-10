@@ -1,0 +1,50 @@
+apiVersion: servicebinding.io/v1beta1
+kind: ServiceBinding
+metadata:
+  name: orders-events-consumer-aws
+spec:
+  name: aws
+  service:
+    apiVersion: v1
+    kind: Secret
+    name: orders-events-consumer-aws-client-secret
+  workload:
+    apiVersion: apps/v1
+    kind: Deployment
+    selector:
+      matchLabels:
+        app: demo-soa-orders-events-consumer
+---
+apiVersion: servicebinding.io/v1beta1
+kind: ServiceBinding
+metadata:
+  name: demo-soa-orders-events-consumer-sqs
+spec:
+  name: sqs
+  service:
+    apiVersion: v1
+    kind: Secret
+    name: sqs-secret
+  workload:
+    apiVersion: apps/v1
+    kind: Deployment
+    selector:
+      matchLabels:
+        app: demo-soa-orders-events-consumer
+---
+apiVersion: servicebinding.io/v1beta1
+kind: ServiceBinding
+metadata:
+  name: demo-soa-orders-events-consumer-dynamodb
+spec:
+  name: dynamodb
+  service:
+    apiVersion: v1
+    kind: Secret
+    name: orders-db-secret
+  workload:
+    apiVersion: apps/v1
+    kind: Deployment
+    selector:
+      matchLabels:
+        app: demo-soa-orders-events-consumer

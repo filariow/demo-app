@@ -1,0 +1,15 @@
+apiVersion: binding.operators.coreos.com/v1alpha1
+kind: ServiceResourceMap
+metadata:
+  name: demo-soa-orders-dynamodb
+spec:
+  service_kind_reference:
+    api_group: dynamodb.services.k8s.aws/v1alpha1
+    kind: tables
+  service_map:
+    type: dynamodb
+    url: "path=https://dynamodb.{.status.ackResourceMetadata.region}.amazonaws.com"
+    region: path={.status.ackResourceMetadata.region}
+    tableName: path={.spec.tableName}
+    streamsUrl: "path=https://streams.dynamodb.{.status.ackResourceMetadata.region}.amazonaws.com"
+    # streamArn: path={.status.latestStreamARN}

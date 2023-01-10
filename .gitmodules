@@ -1,0 +1,3 @@
+[submodule "deploy/kubernetes/operators/service-mapper"]
+	path = deploy/kubernetes/operators/service-mapper
+	url = https://github.com/openshift-app-service-poc/service-mapper

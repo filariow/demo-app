@@ -1,0 +1,35 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ingress.yaml
+  - ../../base
+  - ../../../infra/aws/catalog-identity
+  - ../../../infra/aws/orders-identity
+  - ../../../infra/aws/orders-events-consumer-identity
+  - ../../../infra/aws/catalog-db
+  - ../../../infra/aws/orders-db
+  - ../../../infra/aws/queue
+  - ../../../operators/service-binding-operator
+  - ../../../operators/olm-aws
+  - ../../../operators/olm-aws-dynamodb
+  - ../../../operators/olm-aws-sqs
+  - ../../../operators/olm-aws-rds
+patchesJson6902:
+  - target:
+      group: operators.coreos.com
+      version: v1alpha1
+      kind: Subscription
+      name: sqs
+    path: ./patches/olm-aws-operators.yaml
+  - target:
+      group: operators.coreos.com
+      version: v1alpha1
+      kind: Subscription
+      name: dynamodb
+    path: ./patches/olm-aws-operators.yaml
+  - target:
+      group: operators.coreos.com
+      version: v1alpha1
+      kind: Subscription
+      name: rds
+    path: ./patches/olm-aws-operators.yaml

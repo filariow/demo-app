@@ -1,0 +1,14 @@
+apiVersion: binding.operators.coreos.com/v1alpha1
+kind: ServiceResourceMap
+metadata:
+  name: demo-soa-sqs
+  namespace: demo-soa
+spec:
+  service_kind_reference:
+    api_group: sqs.services.k8s.aws/v1alpha1
+    kind: queues
+  service_map:
+    type: "sqs"
+    url: "path={.status.queueURL}"
+    queueName: "path={.spec.queueName}"
+    region: path={.status.ackResourceMetadata.region}

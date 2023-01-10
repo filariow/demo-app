@@ -1,0 +1,18 @@
+.ProductDetail {
+  background-color: #282c34;
+  min-height: calc(100vh - 209px);
+  text-align: center;
+}
+
+
+.ProductDetail-title {
+  padding-top: 20px;
+  padding-bottom: 20px;
+  color: white;
+  font-size: 5rem;
+  font-weight: 700;
+}
+
+.ProductDetail-title-background {
+  background-color: #1a1a20
+}

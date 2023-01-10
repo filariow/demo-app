@@ -1,0 +1,35 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    nginx.org/rewrites: "serviceName=demo-soa-catalog rewrite=/;serviceName=demo-soa-orders rewrite=/"
+  name: demo-soa
+  namespace: demo-soa
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: "demo-soa.apps-crc.testing"
+    http:
+      paths:
+      - path: /api/catalog/
+        pathType: Prefix
+        backend:
+          service:
+            name: demo-soa-catalog
+            port:
+              number: 8080
+      - path: /api/orders/
+        pathType: Prefix
+        backend:
+          service:
+            name: demo-soa-orders
+            port:
+              number: 8080
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: demo-soa-frontend
+            port:
+              number: 8080

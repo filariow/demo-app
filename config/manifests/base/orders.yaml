@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: demo-soa-orders
+  namespace: demo-soa
+  labels:
+    app: demo-soa-orders
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: demo-soa-orders
+  template:
+    metadata:
+      labels:
+        app: demo-soa-orders
+    spec:
+      initContainers:
+      - name: demo-soa-orders-init
+        image: redhat.io/demo-soa/orders-init:latest
+        imagePullPolicy: IfNotPresent
+        resources:
+          limits:
+            cpu: 100m
+            memory: 200Mi
+          requests:
+            cpu: 100m
+            memory: 200Mi
+      containers:
+      - name: demo-soa-orders
+        image: redhat.io/demo-soa/orders:latest
+        imagePullPolicy: IfNotPresent
+        resources:
+          limits:
+            cpu: 100m
+            memory: 200Mi
+          requests:
+            cpu: 100m
+            memory: 200Mi
+        ports:
+        - containerPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: demo-soa-orders
+  namespace: demo-soa
+spec:
+  ports:
+  - port: 8080
+    targetPort: 8080
+  selector:
+    app: demo-soa-orders
+

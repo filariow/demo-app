@@ -1,0 +1,50 @@
+apiVersion: servicebinding.io/v1beta1
+kind: ServiceBinding
+metadata:
+  name: catalog-aws
+spec:
+  name: aws
+  service:
+    apiVersion: v1
+    kind: Secret
+    name: catalog-aws-client-secret
+  workload:
+    apiVersion: apps/v1
+    kind: Deployment
+    selector:
+      matchLabels:
+        app: demo-soa-catalog
+---
+apiVersion: servicebinding.io/v1beta1
+kind: ServiceBinding
+metadata:
+  name: demo-soa-catalog-rds-psql
+spec:
+  name: postgres
+  service:
+    apiVersion: binding.operators.coreos.com/v1alpha1
+    kind: ServiceProxy
+    name: demo-soa-catalog-db
+  workload:
+    apiVersion: apps/v1
+    kind: Deployment
+    selector:
+      matchLabels:
+        app: demo-soa-catalog
+---
+apiVersion: servicebinding.io/v1beta1
+kind: ServiceBinding
+metadata:
+  name: demo-soa-catalog-sqs
+spec:
+  name: sqs
+  service:
+    apiVersion: binding.operators.coreos.com/v1alpha1
+    kind: ServiceProxy
+    name: demo-soa-sqs
+  workload:
+    apiVersion: apps/v1
+    kind: Deployment
+    selector:
+      matchLabels:
+        app: demo-soa-catalog

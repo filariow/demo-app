@@ -1,0 +1,25 @@
+apiVersion: dynamodb.services.k8s.aws/v1alpha1
+kind: Table
+metadata:
+  namespace: demo-soa
+  name: demo-soa-orders-db
+spec:
+  attributeDefinitions:
+  - attributeName: ID
+    attributeType: S
+  tableName: orders
+  tableClass: STANDARD_INFREQUENT_ACCESS
+  billingMode: PAY_PER_REQUEST
+  keySchema:
+  - attributeName: ID
+    keyType: HASH
+  streamSpecification:
+    streamEnabled: true
+    streamViewType: NEW_AND_OLD_IMAGES
+  tags:
+    - key: env
+      value: dev
+    - key: project
+      value: demo-soa
+
+

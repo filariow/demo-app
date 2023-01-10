@@ -1,0 +1,46 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - ../../base
+  - scc.yaml
+  - nginx-ingress.yaml
+  - ingress.yaml
+  - route.yaml
+  - ../../../infra/aws/catalog-identity
+  - ../../../infra/aws/orders-identity
+  - ../../../infra/aws/orders-events-consumer-identity
+  - ../../../infra/aws/catalog-db
+  - ../../../infra/aws/orders-db
+  - ../../../infra/aws/queue
+  - ../../../operators/service-binding-operator
+  - ../../../operators/olm-nginx-ingress
+  - ../../../operators/olm-aws
+  - ../../../operators/olm-aws-sqs
+  - ../../../operators/olm-aws-dynamodb
+  - ../../../operators/olm-aws-rds
+patchesJson6902:
+  - target:
+      kind: Subscription
+      name: service-binding-operator
+      group: operators.coreos.com
+      version: v1alpha1
+    path: ./patches/service-binding-operator.yaml
+images:
+- name: redhat.io/demo-soa/catalog
+  newName: image-registry.openshift-image-registry.svc:5000/demo-soa/catalog
+  newTag: latest
+- name: redhat.io/demo-soa/catalog-init
+  newName: image-registry.openshift-image-registry.svc:5000/demo-soa/catalog-init
+  newTag: latest
+- name: redhat.io/demo-soa/frontend
+  newName: image-registry.openshift-image-registry.svc:5000/demo-soa/frontend
+  newTag: latest
+- name: redhat.io/demo-soa/orders-init
+  newName: image-registry.openshift-image-registry.svc:5000/demo-soa/orders-init
+  newTag: latest
+- name: redhat.io/demo-soa/orders
+  newName: image-registry.openshift-image-registry.svc:5000/demo-soa/orders
+  newTag: latest
+- name: redhat.io/demo-soa/orders-events-consumer
+  newName: image-registry.openshift-image-registry.svc:5000/demo-soa/orders-events-consumer
+  newTag: latest

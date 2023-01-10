@@ -1,0 +1,56 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sqs
+  namespace: demo-soa
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: sqs
+  template:
+    metadata:
+      labels:
+        app: sqs
+    spec:
+      containers:
+      - name: sqs
+        image: softwaremill/elasticmq-native
+        imagePullPolicy: IfNotPresent
+        resources:
+          limits:
+            cpu: 100m
+            memory: 200Mi
+          requests:
+            cpu: 100m
+            memory: 200Mi
+        ports:
+        - containerPort: 9324
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: sqs
+  namespace: demo-soa
+spec:
+  ports:
+  - port: 9324
+    targetPort: 9324
+  selector:
+    app: sqs
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: sqs-secret
+  namespace: demo-soa
+type: servicebinding.io/sqs
+stringData:
+  type: sqs
+  provider: sqs
+  access_key_id: x
+  region: elasticmq
+  secret_access_key: x
+  source: dummy
+  url: http://sqs:9324
+  queueName: orders

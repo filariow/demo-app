@@ -1,0 +1,6 @@
+- op: "replace"
+  path: /spec/sourceNamespace
+  value: olm
+- op: "replace"
+  path: /spec/source
+  value: operatorhubio-catalog

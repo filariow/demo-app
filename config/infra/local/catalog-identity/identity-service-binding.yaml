@@ -1,0 +1,52 @@
+apiVersion: servicebinding.io/v1beta1
+kind: ServiceBinding
+metadata:
+  name: catalog-aws
+spec:
+  name: aws
+  service:
+    apiVersion: v1
+    kind: Secret
+    name: catalog-aws-client-secret
+  workload:
+    apiVersion: apps/v1
+    kind: Deployment
+    selector:
+      matchLabels:
+        app: demo-soa-catalog
+---
+apiVersion: servicebinding.io/v1beta1
+kind: ServiceBinding
+metadata:
+  namespace: demo-soa
+  name: demo-soa-catalog-sqs
+spec:
+  name: sqs
+  service:
+    apiVersion: v1
+    kind: Secret
+    name: sqs-secret
+  workload:
+    apiVersion: apps/v1
+    kind: Deployment
+    selector:
+      matchLabels:
+        app: demo-soa-catalog
+---
+apiVersion: servicebinding.io/v1beta1
+kind: ServiceBinding
+metadata:
+  namespace: demo-soa
+  name: demo-soa-catalog-db
+spec:
+  name: postgres
+  service:
+    apiVersion: v1
+    kind: Secret
+    name: demo-soa-catalog-db
+  workload:
+    apiVersion: apps/v1
+    kind: Deployment
+    selector:
+      matchLabels:
+        app: demo-soa-catalog

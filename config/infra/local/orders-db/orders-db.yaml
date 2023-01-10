@@ -1,0 +1,66 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: dynamodb-local
+  namespace: demo-soa
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: orders-db
+  namespace: demo-soa
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: orders-db
+  template:
+    metadata:
+      labels:
+        app: orders-db
+    spec:
+      serviceAccountName: dynamodb-local
+      containers:
+      - name: orders-db
+        image: amazon/dynamodb-local:latest
+        command: ["java", "-jar", "DynamoDBLocal.jar", "-sharedDb"]
+        imagePullPolicy: IfNotPresent
+        resources:
+          limits:
+            cpu: 100m
+            memory: 200Mi
+          requests:
+            cpu: 100m
+            memory: 200Mi
+        ports:
+        - containerPort: 8000
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: orders-db
+  namespace: demo-soa
+spec:
+  ports:
+  - port: 8000
+    targetPort: 8000
+  selector:
+    app: orders-db
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: orders-db-secret
+  namespace: demo-soa
+type: servicebinding.io/dynamodb
+stringData:
+  type: dynamodb
+  provider: dynamodb
+  access_key_id: dummy
+  region: us-east-1
+  secret_access_key: dummy
+  session_token: dummy
+  source: dummy
+  url: http://orders-db:8000
+  streamsUrl: http://orders-db:8000
+  tableName: orders

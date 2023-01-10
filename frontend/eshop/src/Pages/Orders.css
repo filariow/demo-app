@@ -1,0 +1,17 @@
+.Orders {
+  background-color: #282c34;
+  min-height: calc(100vh - 209px);
+  text-align: center;
+}
+
+.Orders-title {
+  padding-top: 20px;
+  padding-bottom: 20px;
+  color: white;
+  font-size: 5rem;
+  font-weight: 700;
+}
+
+.Orders-title-background {
+  background-color: #1a1a20
+}

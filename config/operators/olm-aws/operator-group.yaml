@@ -1,0 +1,8 @@
+apiVersion: operators.coreos.com/v1
+kind: OperatorGroup
+metadata:
+  name: ack-system-operator-group
+  namespace: ack-system
+spec:
+  upgradeStrategy: Default
+

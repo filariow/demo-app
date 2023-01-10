@@ -1,0 +1,19 @@
+apiVersion: charts.nginx.org/v1alpha1
+kind: NginxIngress
+metadata:
+  name: demo-soa
+  namespace: demo-soa
+spec:
+  controller:
+    image:
+      pullPolicy: IfNotPresent
+      repository: nginx/nginx-ingress
+      tag: 2.4.2-alpine
+    ingressClass: nginx
+    kind: deployment
+    nginxplus: false
+    replicaCount: 1
+    # enableSnippets: true
+    # enableCertManager: true
+    serviceAccount:
+      imagePullSecretName: ""

@@ -1,0 +1,24 @@
+apiVersion: rds.services.k8s.aws/v1alpha1
+kind: DBInstance
+metadata:
+  name: demo-soa-catalog-db
+  namespace: demo-soa
+spec:
+  allocatedStorage: 20
+  dbInstanceClass: db.t3.micro
+  dbInstanceIdentifier: demo-soa-catalog-rds-psql
+  engine: postgres
+  engineVersion: "14"
+  masterUsername: "postgres"
+  masterUserPassword:
+    namespace: demo-soa
+    name: demo-soa-catalog-db-password
+    key: password
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: demo-soa-catalog-db-password
+  namespace: demo-soa
+stringData:
+  password: SuperS3cret!

@@ -1,0 +1,33 @@
+apiVersion: servicebinding.io/v1beta1
+kind: ServiceBinding
+metadata:
+  name: demo-soa-orders-dynamodb
+spec:
+  name: dynamodb
+  service:
+    apiVersion: binding.operators.coreos.com/v1alpha1
+    kind: ServiceProxy
+    name: demo-soa-orders-db
+  workload:
+    apiVersion: apps/v1
+    kind: Deployment
+    selector:
+      matchLabels:
+        app: demo-soa-orders
+---
+apiVersion: servicebinding.io/v1beta1
+kind: ServiceBinding
+metadata:
+  name: demo-soa-orders-aws
+spec:
+  name: aws
+  service:
+    apiVersion: v1
+    kind: Secret
+    name: orders-aws-client-secret
+  workload:
+    apiVersion: apps/v1
+    kind: Deployment
+    selector:
+      matchLabels:
+        app: demo-soa-orders

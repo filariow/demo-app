@@ -1,0 +1,11 @@
+services:
+  frontend:
+    build:
+      context: frontend/eshop
+      dockerfile: Dockerfile.dev
+    volumes:
+      - ./frontend/eshop:/app:cached
+    environment:
+      PORT: 8080 # for websocket to work with no heavy customization, that should match nginx's port
+      REACT_APP_ESHOP_CATALOG_URL: 'http://localhost:8090/api/catalog'
+      REACT_APP_ESHOP_ORDERS_URL: 'http://localhost:8090/api/orders'
