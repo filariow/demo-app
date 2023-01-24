@@ -1,12 +1,12 @@
-#!/bin/env sh
+#!/bin/env bash
 
 ## Style Guide: https://google.github.io/styleguide/shellguide.html
 
-DIR=$(dirname $(readlink -f "$0"))
+DIR=$(dirname "$(readlink -f "$0")")
 source "$DIR/common.sh" || exit 1
 
 [ -z "$LOCAL_SERVICES" ] && LOCAL_SERVICES="false"
-[ -z "$MAX_CONCURRENCY" ] && MAX_CONCURRENCY=4
+[ -z "$MAX_CONCURRENCY" ] && MAX_CONCURRENCY=2
 
 PROJECT_ROOTS=( frontend/eshop/ services/orders/deploy/* services/orders-events-consumer services/catalog/deploy/* deploy/kubernetes/operators/service-mapper )
 SERVICES=( demo-soa-catalog demo-soa-frontend demo-soa-orders demo-soa-orders-events-consumer )
@@ -24,21 +24,21 @@ MANIFESTS="config/manifests/overlays/minikube"$([ "$LOCAL_SERVICES" != "true" ] 
 # Arguments:
 #   None
 ###################################################
-function load_images_in_minikube {
+load_images_in_minikube() {
   local images=()
-  [ "$LOCAL_SERVICES" = "true" ] && images+=$LOCAL_SERVICES_IMAGES
+  [ "$LOCAL_SERVICES" = "true" ] && images+=("${LOCAL_SERVICES_IMAGES[@]}")
 
-  for r in ${PROJECT_ROOTS[@]}; do
-      images+=($(cat "$r/Dockerfile" | grep FROM | cut -d' ' -f 2))
+  for r in "${PROJECT_ROOTS[@]}"; do
+      images+=("$(grep FROM < "$r/Dockerfile"| cut -d' ' -f 2)")
   done
 
   local sorted=()
   IFS=$'\n'; sorted=($(sort -u <<<"${images[*]}")); unset IFS
 
   local pids=()
-  for r in ${sorted[@]}; do
+  for r in "${sorted[@]}"; do
       echo "loading image $r in minikube"
-      (time minikube image load --profile demo-soa $r && echo "image $r loaded in minikube")& pids+=("$!")
+      (time minikube image load --profile demo-soa "$r" && echo "image $r loaded in minikube")& pids+=("$!")
   done
 
   wait "${pids[@]}" || true
@@ -53,7 +53,7 @@ function load_images_in_minikube {
 # Arguments:
 #   None
 ###################################################
-function prepare_cluster {
+prepare_cluster() {
     minikube start \
         --insecure-registry 0.0.0.0/0 \
         --profile demo-soa \
@@ -71,12 +71,12 @@ function prepare_cluster {
     (time load_images_in_minikube && "all images loaded in minikube")& load_pid="$!"
     wait "$load_pid" || (echo "error filling minikube's cache" && (kill "${pids[@]}" || true ) && return 1)
 
-    eval $(minikube docker-env --profile demo-soa)
+    eval "$(minikube docker-env --profile demo-soa)"
 
-    (cd $SERVICE_MAPPER_PATH && make install docker-build deploy) & pids+=("$!")
-    make -j $MAX_CONCURRENCY docker-build-all & pids+=("$!")
+    (cd "$SERVICE_MAPPER_PATH" && make install docker-build deploy) & pids+=("$!")
+    make -j "$MAX_CONCURRENCY" docker-build-all & pids+=("$!")
 
-    echo "waiting for pids ${pids[@]}"
+    echo "waiting for pids ${pids[*]}"
     wait "${pids[@]}" || (echo "error preparing cluster" && return 1)
 }
 
@@ -88,20 +88,21 @@ function prepare_cluster {
 # Arguments:
 #   demo-soa app url
 ###################################################
-function install_demo_soa_app {
+install_demo_soa_app() {
     # install manifests
-    loop_for 10 20 make install MANIFESTS_FOLDER=$MANIFESTS || return 1
+    loop_for 10 20 make install MANIFESTS_FOLDER="$MANIFESTS" || return 1
 
     # wait for rollouts and service availability
-    loop_for 10 20 check_deployment_rollout "$SERVICES" || return 1
+    loop_for 10 20 check_deployment_rollout "${SERVICES[*]}" || return 1
     loop_for 10 20 check_availability "$1" || return 1
 }
 
-function main {
+main() {
     (minikube --profile demo-soa status > /dev/null && echo "cluster demo-soa is still running") || \
         prepare_cluster || (echo "error preparing cluster" && exit 1)
 
-    local minikube_url="https://$(minikube ip --profile demo-soa)"
+    local minikube_url
+    minikube_url="https://$(minikube ip --profile demo-soa)"
     install_demo_soa_app "$minikube_url" || (echo "error installing demo soa app" && exit 1)
 
     open_url "$minikube_url"
