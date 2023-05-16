@@ -1,0 +1,47 @@
+Parameters:
+  DBUsername:
+      NoEcho: 'true'
+      Description: Username for PSQL database access
+      Type: String
+      MinLength: '1'
+      MaxLength: '16'
+      AllowedPattern: '[a-zA-Z][a-zA-Z0-9]*'
+      ConstraintDescription: must begin with a letter and contain only alphanumeric characters.
+Resources:
+  ServerlessDB:
+    Type: 'AWS::RDS::DBCluster'
+    Properties:
+      MasterUsername: !Ref DBUsername
+      MasterUserPassword: !Join [ '', [ '{{resolve:secretsmanager:', !Ref DBSecret, ':SecretString:password}}' ] ]
+      Engine: aurora-postgresql
+      EngineMode: serverless
+      ScalingConfiguration:
+        AutoPause: true
+        MinCapacity: 4
+        MaxCapacity: 32
+        SecondsUntilAutoPause: 1000
+  DBSecret:
+    Type: 'AWS::SecretsManager::Secret'
+    Properties:
+      Description: "This secret has a dynamically generated secret password."
+      GenerateSecretString:
+        SecretStringTemplate: !Join [ '', [ '{"username": "', !Ref DBUsername, '"}' ] ]
+        GenerateStringKey: 'password'
+        PasswordLength: 16
+        ExcludeCharacters: '"@/\'
+Outputs:
+  DBAddress:
+    Description: Endpoint Address of the Aurora Serverless cluster
+    Value: !GetAtt ServerlessDB.Endpoint.Address
+  DBPort:
+    Description: Endpoint Port of the Aurora Serverless cluster
+    Value: !GetAtt ServerlessDB.Endpoint.Port
+  DBUser:
+    Description: Master User
+    Value: !Ref DBUsername
+  DBPasswordRef:
+    Description: Master Password Secret Reference
+    Value: !Ref DBSecret
+  type:
+    Description: type of service
+    Value: aurora-postgresql
