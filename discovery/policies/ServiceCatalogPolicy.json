@@ -1,0 +1,37 @@
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "cloudformation:CreateStack",
+                "cloudformation:DeleteStack",
+                "cloudformation:DescribeStackEvents",
+                "cloudformation:DescribeStacks",
+                "cloudformation:GetTemplateSummary",
+                "cloudformation:SetStackPolicy",
+                "cloudformation:ValidateTemplate",
+                "cloudformation:UpdateStack",
+                "secretsmanager:*",
+                "servicecatalog:*",
+                "rds:*",
+                "ec2:*",
+                "iam:CreateServiceLinkedRole",
+                "sns:*"
+            ],
+            "Resource": "*"
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "s3:GetObject"
+            ],
+            "Resource": "*",
+            "Condition": {
+                "StringEquals": {
+                    "s3:ExistingObjectTag/servicecatalog:provisioning": "true"
+                }
+            }
+        }
+    ]
+}
