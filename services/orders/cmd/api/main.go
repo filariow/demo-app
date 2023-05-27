@@ -22,6 +22,9 @@ func main() {
 
 func run() error {
 	c := config.NewConfigFromServiceBinding()
+	if c.DynamoDB.Url == "" {
+		c.DynamoDB.Url = fmt.Sprintf("https://dynamodb.%s.amazonaws.com", c.DynamoDB.Region)
+	}
 
 	fmt.Printf("config: %+v", c)
 

@@ -18,9 +18,9 @@ const (
 )
 
 type Config struct {
-	Aws      awsconfig.Config             `sbc-provider:"aws"`
-	Postgres persistence.PostgreSQLConfig `sbc-provider:"postgres"`
-	SQS      queue.SQSConfig              `sbc-provider:"sqs"`
+	Aws      awsconfig.Config             `sbc-provider-env:"AWS_PROVIDER" sbc-provider:"aws"`
+	Postgres persistence.PostgreSQLConfig `sbc-provider-env:"RDS_PROVIDER" sbc-provider:"postgres"`
+	SQS      queue.SQSConfig              `sbc-provider-env:"SQS_PROVIDER" sbc-provider:"sqs"`
 }
 
 func NewConfigFromServiceBinding() Config {
@@ -34,6 +34,19 @@ func ReadConfig(basePath string, configPtr interface{}) {
 	v := sv.Type()
 
 	for i := 0; i < sv.NumField(); i++ {
+		te := v.Field(i).Tag.Get("sbc-provider-env")
+		if te != "" {
+			k, ok := os.LookupEnv(te)
+			if !ok {
+				log.Printf("error fetching sbc-provider from env var '%s': env var not found", te)
+			} else {
+				c := reflect.New(v.Field(i).Type)
+				readProviderConfig(basePath, k, c)
+				sv.Field(i).Set(c.Elem())
+				continue
+			}
+		}
+
 		t := v.Field(i).Tag.Get("sbc-provider")
 		if t != "" {
 			c := reflect.New(v.Field(i).Type)

@@ -3,11 +3,15 @@ package main
 import (
 	"context"
 	"eshop-orders/pkg/config"
+	"fmt"
 	"log"
 )
 
 func main() {
 	c := config.NewConfigFromServiceBinding()
+	if c.DynamoDB.Url == "" {
+		c.DynamoDB.Url = fmt.Sprintf("https://dynamodb.%s.amazonaws.com", c.DynamoDB.Region)
+	}
 
 	// connect to database
 	db, err := newDynamoDB(c.Aws, c.DynamoDB)
