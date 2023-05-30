@@ -69,14 +69,18 @@ func (s SQSManager) receiveMessages(ctx context.Context) ([]OrderCreatedSQSMessa
 			return nil, err
 		}
 
-		msgs := make([]OrderCreatedSQSMessage, len(rmo.Messages))
-		for i, m := range rmo.Messages {
-			var ocm OrderCreatedSQSMessageValue
+		msgs := []OrderCreatedSQSMessage{}
+		for _, m := range rmo.Messages {
+			var ocm OrderCreatedSQSBody
 			if err := json.Unmarshal([]byte(*m.Body), &ocm); err != nil {
 				return nil, fmt.Errorf("error unmarshalling message: %s: %w", *m.Body, err)
 			}
 
-			msgs[i] = OrderCreatedSQSMessage{Value: ocm, receiptHandle: m.ReceiptHandle}
+			log.Printf("processing message: %v", ocm)
+			for _, r := range ocm.Records {
+				log.Printf("processing record: %v", r)
+				msgs = append(msgs, OrderCreatedSQSMessage{Value: r, receiptHandle: m.ReceiptHandle})
+			}
 		}
 		return msgs, nil
 	}

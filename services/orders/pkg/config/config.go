@@ -35,6 +35,7 @@ func ReadConfig(basePath string, configPtr interface{}) {
 		te := v.Field(i).Tag.Get("sbc-provider-env")
 		if te != "" {
 			k, ok := os.LookupEnv(te)
+			log.Printf("fetching sbc-provider from env var '%s'", te)
 			if !ok {
 				log.Printf("error fetching sbc-provider from env var '%s': env var not found", te)
 			} else {

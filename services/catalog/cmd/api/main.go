@@ -75,5 +75,5 @@ func processReceivedMessage(ctx context.Context, repo persistence.Repository, sm
 	}
 
 	sm.CompleteMessage(ctx, msg)
-	log.Printf("processed message: %s", msg)
+	log.Printf("processed message: %+v", msg)
 }
