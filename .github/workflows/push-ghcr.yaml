@@ -1,0 +1,70 @@
+name: Create and publish a Docker image
+
+on:  # yamllint disable-line rule:truthy
+  push:
+    branches: ['main']
+  workflow_dispatch: {}
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  build-and-push-image:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Log in to the Container registry
+        uses: docker/login-action@f4ef78c080cd8ba55a85445d5b36e214a81df20a
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Build all Docker images
+        run: |
+          REPOSITORY_REF="${REPOSITORY_REF}" \
+            DOCKER_BUILD_ARGS="--label org.opencontainers.image.source=https://github.com/${{ github.repository }}" \
+            make docker-build-all
+        env:
+          REPOSITORY_REF: ${{ env.REGISTRY }}/${{ github.repository }}
+
+      - name: Push Docker images
+        run: |
+          set -e
+
+          # tag built images
+          docker tag "$REPOSITORY_REF/catalog:latest" "$REPOSITORY_REF/catalog:$(git rev-parse --short HEAD)"
+          docker tag "$REPOSITORY_REF/catalog-init:latest" "$REPOSITORY_REF/catalog-init:$(git rev-parse --short HEAD)"
+          docker tag "$REPOSITORY_REF/frontend:latest" "$REPOSITORY_REF/frontend:$(git rev-parse --short HEAD)"
+          docker tag "$REPOSITORY_REF/orders:latest" "$REPOSITORY_REF/orders:$(git rev-parse --short HEAD)"
+          docker tag "$REPOSITORY_REF/orders-init:latest" "$REPOSITORY_REF/orders-init:$(git rev-parse --short HEAD)"
+          docker tag "$REPOSITORY_REF/orders-events-consumer:latest" "$REPOSITORY_REF/orders-events-consumer:$(git rev-parse --short HEAD)"
+
+          # push built images
+          docker push "$REPOSITORY_REF/catalog:$(git rev-parse --short HEAD)"
+          docker push "$REPOSITORY_REF/catalog-init:$(git rev-parse --short HEAD)"
+          docker push "$REPOSITORY_REF/frontend:$(git rev-parse --short HEAD)"
+          docker push "$REPOSITORY_REF/orders:$(git rev-parse --short HEAD)"
+          docker push "$REPOSITORY_REF/orders-init:$(git rev-parse --short HEAD)"
+          docker push "$REPOSITORY_REF/orders-events-consumer:$(git rev-parse --short HEAD)"
+
+          # push latest tag for currently built images
+          docker push "$REPOSITORY_REF/catalog:latest"
+          docker push "$REPOSITORY_REF/catalog-init:latest"
+          docker push "$REPOSITORY_REF/frontend:latest"
+          docker push "$REPOSITORY_REF/orders:latest"
+          docker push "$REPOSITORY_REF/orders-init:latest"
+          docker push "$REPOSITORY_REF/orders-events-consumer:latest"
+        env:
+          REPOSITORY_REF: ${{ env.REGISTRY }}/${{ github.repository }}

@@ -6,6 +6,8 @@ ORDERS_IMAGE_REF ?= $(REPOSITORY_REF)/orders:latest
 ORDERS_INIT_IMAGE_REF ?= $(REPOSITORY_REF)/orders-init:latest
 ORDERS_EVENTS_CONSUMER_IMAGE_REF ?= $(REPOSITORY_REF)/orders-events-consumer:latest
 
+DOCKER_BUILD_ARGS ?=
+
 MANIFESTS_FOLDER ?= config/manifests
 
 # Local development
@@ -49,27 +51,27 @@ deploy-cert-manager:
 
 .PHONY: docker-build-frontend
 docker-build-frontend:
-	docker build -t $(FRONTEND_IMAGE_REF) frontend/eshop
+	docker build $(DOCKER_BUILD_ARGS) -t $(FRONTEND_IMAGE_REF) frontend/eshop
 
 .PHONY: docker-build-catalog
 docker-build-catalog:
-	docker build -t $(CATALOG_IMAGE_REF) -f services/catalog/deploy/catalog/Dockerfile services/catalog
+	docker build $(DOCKER_BUILD_ARGS) -t $(CATALOG_IMAGE_REF) -f services/catalog/deploy/catalog/Dockerfile services/catalog
 
 .PHONY: docker-build-catalog-init
 docker-build-catalog-init:
-	docker build -t $(CATALOG_INIT_IMAGE_REF) -f services/catalog/deploy/init/Dockerfile services/catalog
+	docker build $(DOCKER_BUILD_ARGS) -t $(CATALOG_INIT_IMAGE_REF) -f services/catalog/deploy/init/Dockerfile services/catalog
 
 .PHONY: docker-build-orders
 docker-build-orders:
-	docker build -t $(ORDERS_IMAGE_REF) -f services/orders/deploy/orders/Dockerfile services/orders
+	docker build $(DOCKER_BUILD_ARGS) -t $(ORDERS_IMAGE_REF) -f services/orders/deploy/orders/Dockerfile services/orders
 
 .PHONY: docker-build-orders-events-consumer
 docker-build-orders-events-consumer:
-	docker build -t $(ORDERS_EVENTS_CONSUMER_IMAGE_REF) -f services/orders-events-consumer/Dockerfile services/orders-events-consumer
+	docker build $(DOCKER_BUILD_ARGS) -t $(ORDERS_EVENTS_CONSUMER_IMAGE_REF) -f services/orders-events-consumer/Dockerfile services/orders-events-consumer
 
 .PHONY: docker-build-orders-init
 docker-build-orders-init:
-	docker build -t $(ORDERS_INIT_IMAGE_REF) -f services/orders/deploy/init/Dockerfile services/orders
+	docker build $(DOCKER_BUILD_ARGS) -t $(ORDERS_INIT_IMAGE_REF) -f services/orders/deploy/init/Dockerfile services/orders
 
 .PHONY: docker-build-all
 docker-build-all: docker-build-frontend docker-build-catalog docker-build-catalog-init docker-build-orders docker-build-orders-init docker-build-orders-events-consumer
