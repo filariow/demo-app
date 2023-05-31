@@ -27,8 +27,6 @@ func run() error {
 	ctx := context.Background()
 	cp := config.NewConfigFromServiceBinding()
 
-	fmt.Printf("config: %+v\n", cp)
-
 	sm, err := queue.NewSQSManager(ctx, cp.Aws, cp.SQS)
 	if err != nil {
 		return fmt.Errorf("error creating SQS Manager: %w", err)

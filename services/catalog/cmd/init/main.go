@@ -6,7 +6,6 @@ import (
 	"eshop-catalog/pkg/config"
 	"log"
 	"strings"
-	"time"
 
 	"github.com/jackc/pgx/v5"
 )
@@ -23,9 +22,7 @@ func main() {
 	ctx := context.Background()
 
 	c := config.NewConfigFromServiceBinding()
-	ctxDb, cancel := context.WithTimeout(ctx, 20*time.Second)
-	defer cancel()
-	conn, err := pgx.Connect(ctxDb, c.Postgres.ConnectionString())
+	conn, err := pgx.Connect(ctx, c.Postgres.ConnectionString())
 	if err != nil {
 		log.Fatalf("unable to connect to database: %v", err)
 	}
