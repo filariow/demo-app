@@ -23,8 +23,7 @@ function EShopNavbar (): JSX.Element {
             </Nav>
             <Nav className="me-end">
               <Nav.Link href="https://github.com/redhat-developer/service-binding-operator/">
-                <span className="pe-2">Service Binding Company</span>
-                <img alt="SBO logo" src="https://raw.githubusercontent.com/redhat-developer/service-binding-operator/master/assets/icon/sbo-logo.png" width={'30px'}></img>
+                <span className="pe-2">Sapiens Inc<span className="ms-2">🦍</span></span>
               </Nav.Link>
             </Nav>
           </Navbar.Collapse>

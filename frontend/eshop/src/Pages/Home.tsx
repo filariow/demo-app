@@ -12,7 +12,7 @@ function Home (): JSX.Element {
           Welcome to <span className="eshop-title">eShop</span>
         </p>
         <p style={{ paddingTop: '2rem' }}>
-          As Warehouse Manager of the <i>Service Binding Company</i>
+          As Warehouse Manager of the <i>Sapiens Inc</i><span className="ms-2">🦍</span>
           <br />
           <span>you have access to our <Link className="app-link" to={'catalog'}>Catalog</Link> to buy new products</span>
         </p>
